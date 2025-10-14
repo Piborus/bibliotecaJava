@@ -28,8 +28,8 @@ public class Emprestimo {
     @Column(name = "data_da_devolucao", nullable = false)
     private LocalDateTime dataDaDevolucao;
 
-    @Column(name = "data_prevista_de_devolucao", nullable = false)
-    private LocalDateTime dataPrevistaDeDevolucao;
+    @Column(name = "data_prevista_da_devolucao", nullable = false)
+    private LocalDateTime dataPrevistaDaDevolucao;
 
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)

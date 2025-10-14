@@ -8,9 +8,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UsuarioDTO {
+
     private String nome;
+
     @Email(message = "Email deve ser no formato correto")
     private String email;
+
     @NotBlank
     private String matricula;
 }

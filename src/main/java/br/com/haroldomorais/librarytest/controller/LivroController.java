@@ -22,20 +22,20 @@ public class LivroController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Livro> buscarPorId(@PathVariable Long id){
+    public ResponseEntity<Livro> buscarPorLivroId(@PathVariable Long id){
         service.buscarPorId(id);
         return ResponseEntity.ok(service.buscarPorId(id));
     }
 
     @PatchMapping("{id}")
-    public ResponseEntity<Livro> atualizarLivro(@PathVariable Long id, @RequestBody LivroDTO livroDto){
+    public ResponseEntity<Livro> atualizarLivroPorId(@PathVariable Long id, @RequestBody LivroDTO livroDto){
         Livro livroAtualizado = service.atualizarLivro(id, livroDto);
         return ResponseEntity.ok(livroAtualizado);
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Void> removerLivro(@PathVariable Long id) {
-        service.removerLivro(id);
+    public ResponseEntity<Void> deletarLivroPorId(@PathVariable Long id) {
+        service.deletarLivroPorId(id);
         return ResponseEntity.noContent().build();
     }
 }

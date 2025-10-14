@@ -26,17 +26,17 @@ public class UsuarioController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Usuario> buscarPorId(@PathVariable Long id){
+    public ResponseEntity<Usuario> buscarUsuarioPorId(@PathVariable Long id){
         return ResponseEntity.ok(usuarioService.buscarPorId(id));
     }
 
     @PatchMapping("{id}")
-    public ResponseEntity<Usuario> atualizarUsuario(@PathVariable Long id, @RequestBody UsuarioDTO usuario) {
+    public ResponseEntity<Usuario> atualizarUsuarioPorId(@PathVariable Long id, @RequestBody UsuarioDTO usuario) {
         return ResponseEntity.ok(usuarioService.atualizarUsuario(id, usuario));
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Void> deletarUsuario(@PathVariable Long id){
+    public ResponseEntity<Void> deletarUsuarioPorId(@PathVariable Long id){
         usuarioService.deletarUsuario(id);
         return ResponseEntity.noContent().build();
     }

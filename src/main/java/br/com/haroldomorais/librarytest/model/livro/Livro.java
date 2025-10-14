@@ -12,25 +12,22 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "livros")
-@Builder
 public class Livro {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
     @Column(name = "titulo", nullable = false)
     private String titulo;
-
-    @Column(name = "isbn", nullable = false, unique = true)
-    private String isbn;
 
     @NotBlank
     @Column(name = "autor", nullable = false)
     private String autor;
 
-    @Min(0)
+    @Column(name = "isbn", nullable = false, unique = true)
+    private String isbn;
+
     @Column(name = "quantidade")
     private Integer quantidade;
 

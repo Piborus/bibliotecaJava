@@ -10,7 +10,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "usuario")
+@Table(name = "usuarios")
 @ToString
 public class Usuario {
 
@@ -18,15 +18,14 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "nome")
+    @Column(name = "nome", nullable = false)
     private String nome;
 
     @Email(message = "Email deve ser no formato correto")
     @Column(name = "email")
     private String email;
 
-    @NotBlank
-    @Column(name = "matricula", unique = true)
+    @Column(name = "matricula", unique = true , nullable = false)
     private String matricula;
 
 }

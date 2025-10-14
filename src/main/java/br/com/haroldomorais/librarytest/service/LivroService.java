@@ -6,8 +6,6 @@ import br.com.haroldomorais.librarytest.repository.LivroRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Random;
-
 @Service
 @RequiredArgsConstructor
 public class LivroService {
@@ -44,7 +42,7 @@ public class LivroService {
         return livroRepository.save(livro);
     }
 
-    public void removerLivro(Long id){
+    public void deletarLivroPorId(Long id){
         livroRepository.deleteById(id);
     }
 
