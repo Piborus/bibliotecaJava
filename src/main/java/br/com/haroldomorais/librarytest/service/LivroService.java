@@ -3,17 +3,50 @@ package br.com.haroldomorais.librarytest.service;
 import br.com.haroldomorais.librarytest.model.livro.Livro;
 import br.com.haroldomorais.librarytest.model.livro.dto.LivroDTO;
 import br.com.haroldomorais.librarytest.repository.LivroRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Random;
 
 @Service
+@RequiredArgsConstructor
 public class LivroService {
 
-    @Autowired
-    private LivroRepository livroRepository;
+    private final LivroRepository livroRepository;
 
     public void cadastrarLivro(LivroDTO livroDto){
+        Livro livro = new Livro();
+        livro.setTitulo(livroDto.getTitulo());
+        livro.setAutor(livroDto.getAutor());
+        livro.setIsbn(livroDto.getIsbn()); // Gera um ISBN aleatório
+        livro.setQuantidade(livroDto.getQuantidade());
+        livroRepository.save(livro);
     }
+
+    public Livro buscarPorId(Long id){
+        return livroRepository.findById(id).orElseThrow(() -> new RuntimeException("Livro não encontrado"));
+    }
+
+    public Livro atualizarLivro(Long id, LivroDTO livroDto){
+        Livro livro = livroRepository.findById(id).orElseThrow(() -> new RuntimeException("Livro não encontrado"));
+        if (livroDto.getTitulo() != null) {
+            livro.setTitulo(livroDto.getTitulo());
+        }
+        if (livroDto.getAutor() != null) {
+            livro.setAutor(livroDto.getAutor());
+        }
+        if (livroDto.getIsbn() != null) {
+            livro.setIsbn(livroDto.getIsbn());
+        }
+        if (livroDto.getQuantidade() != null) {
+            livro.setQuantidade(livroDto.getQuantidade());
+        }
+        return livroRepository.save(livro);
+    }
+
+    public void removerLivro(Long id){
+        livroRepository.deleteById(id);
+    }
+
+
 }
