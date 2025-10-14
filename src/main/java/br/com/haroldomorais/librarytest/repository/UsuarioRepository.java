@@ -11,6 +11,15 @@ import org.springframework.stereotype.Repository;
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
 
-    @Query("SELECT u FROM Usuario u WHERE u.nome LIKE %:nome% OR u.email LIKE %:email% OR u.matricula LIKE %:matricula%")
-    Page<Usuario> buscarPorNomeEEmailMatricula(String nome, String email, String matricula, Pageable page);
+    @Query("""
+    SELECT u FROM Usuario u
+    WHERE LOWER(u.nome) LIKE LOWER(CONCAT('%', :nome, '%'))
+       OR LOWER(u.email) LIKE LOWER(CONCAT('%', :email, '%'))
+       OR LOWER(u.matricula) LIKE LOWER(CONCAT('%', :matricula, '%'))
+    """)
+    Page<Usuario> buscarPorNomeEEmailMatricula(
+            String nome,
+            String email,
+            String matricula,
+            Pageable page);
 }
