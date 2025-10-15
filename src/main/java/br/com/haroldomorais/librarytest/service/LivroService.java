@@ -4,6 +4,8 @@ import br.com.haroldomorais.librarytest.model.livro.Livro;
 import br.com.haroldomorais.librarytest.model.livro.dto.LivroDTO;
 import br.com.haroldomorais.librarytest.repository.LivroRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -44,6 +46,10 @@ public class LivroService {
 
     public void deletarLivroPorId(Long id){
         livroRepository.deleteById(id);
+    }
+
+    public Page<Livro> buscarLivrosDisponiveis(Pageable page){
+        return livroRepository.buscarLivrosDisponiveis(page);
     }
 
 

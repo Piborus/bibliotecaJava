@@ -19,4 +19,10 @@ public interface EmprestimoRepository extends JpaRepository<Emprestimo, Long> {
 
     @Query("SELECT e FROM Emprestimo e WHERE e.usuario = :usuario AND e.livro = :livro AND e.dataDaDevolucao IS NULL")
     Optional<List<Emprestimo>> findByUsuarioAndLivroAndDataDaDevolucaoIsNull(Usuario usuario, Livro livro);
+
+    @Query("SELECT e FROM Emprestimo e WHERE e.usuario.id = :usuarioId AND e.dataDaDevolucao IS NULL")
+    List<Emprestimo> buscarEmprestimosPorUsuario(Long usuarioId);
+
+    @Query("SELECT e FROM Emprestimo e WHERE e.usuario.id = :usuarioId AND e.dataDaDevolucao IS NULL AND e.dataPrevistaDaDevolucao < CURRENT_TIMESTAMP")
+    List<Emprestimo> buscarEmprestimosEmAtrasoPorUsuario(Long usuarioId);
 }

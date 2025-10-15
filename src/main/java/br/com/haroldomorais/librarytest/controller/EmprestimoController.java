@@ -1,5 +1,7 @@
 package br.com.haroldomorais.librarytest.controller;
 
+import br.com.haroldomorais.librarytest.model.emprestimo.Emprestimo;
+import br.com.haroldomorais.librarytest.model.usuario.Usuario;
 import br.com.haroldomorais.librarytest.service.EmprestimoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,5 +27,17 @@ public class EmprestimoController {
     public ResponseEntity<Void> devolverLivro(@RequestParam List<Long> livroIds, @RequestParam Long usuarioId){
         service.devolverLivro(livroIds, usuarioId);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/usuario/{usuarioId}")
+    public ResponseEntity<List<Emprestimo>> buscarEmprestimosPorUsuario(@PathVariable Long usuarioId){
+        var resultado = service.buscarEmprestimosPorUsuario(usuarioId);
+        return ResponseEntity.ok(resultado);
+    }
+
+    @GetMapping("/usuario/{usuarioId}/em-atraso")
+    public ResponseEntity<List<Emprestimo>> buscarEmprestimosEmAtrasoPorUsuario(@PathVariable Long usuarioId){
+        var resultado = service.buscarEmprestimosEmAtrasoPorUsuario(usuarioId);
+        return ResponseEntity.ok(resultado);
     }
 }

@@ -80,4 +80,23 @@ public class EmprestimoService {
             livroService.atualizarLivro(livro.getId(), new LivroDTO());
         }
     }
+
+    public List<Emprestimo>buscarEmprestimosPorUsuario(Long usuarioId){
+        Usuario usuario = usuarioService.buscarPorId(usuarioId);
+        if (usuario == null) {
+            throw new RuntimeException("Usuario não encontrado");
+        }
+        var busca = repository.buscarEmprestimosPorUsuario(usuarioId);
+        return busca;
+    }
+
+    public List<Emprestimo>buscarEmprestimosEmAtrasoPorUsuario(Long usuarioId){
+        Usuario usuario = usuarioService.buscarPorId(usuarioId);
+        if (usuario == null){
+            throw new RuntimeException("Usuario não encontrado");
+        }
+
+        var buscar = repository.buscarEmprestimosEmAtrasoPorUsuario(usuarioId);
+        return buscar;
+    }
 }

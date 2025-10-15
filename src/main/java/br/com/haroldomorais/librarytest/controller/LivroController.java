@@ -4,9 +4,14 @@ import br.com.haroldomorais.librarytest.model.livro.Livro;
 import br.com.haroldomorais.librarytest.model.livro.dto.LivroDTO;
 import br.com.haroldomorais.librarytest.service.LivroService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/livros")
@@ -37,5 +42,11 @@ public class LivroController {
     public ResponseEntity<Void> deletarLivroPorId(@PathVariable Long id) {
         service.deletarLivroPorId(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping()
+    public ResponseEntity<Page<Livro>> buscarLivrosDisponiveis(@PageableDefault(size = 10) Pageable page){
+        Page<Livro> resultado = service.buscarLivrosDisponiveis(page);
+        return ResponseEntity.ok(resultado);
     }
 }
