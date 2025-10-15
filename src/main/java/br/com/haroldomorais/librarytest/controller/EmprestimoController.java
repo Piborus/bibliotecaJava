@@ -1,7 +1,6 @@
 package br.com.haroldomorais.librarytest.controller;
 
 import br.com.haroldomorais.librarytest.model.emprestimo.Emprestimo;
-import br.com.haroldomorais.librarytest.model.usuario.Usuario;
 import br.com.haroldomorais.librarytest.service.EmprestimoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
