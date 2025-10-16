@@ -1,7 +1,7 @@
 package br.com.haroldomorais.librarytest.service;
 
 import br.com.haroldomorais.librarytest.model.usuario.Usuario;
-import br.com.haroldomorais.librarytest.model.usuario.dto.UsuarioDTO;
+import br.com.haroldomorais.librarytest.model.usuario.dto.UsuarioRequestDTO;
 import br.com.haroldomorais.librarytest.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,7 +16,7 @@ public class UsuarioService {
     private final UsuarioRepository repository;
 
 
-    public void cadastrarUsuario(UsuarioDTO usuario){
+    public void cadastrarUsuario(UsuarioRequestDTO usuario){
         Usuario newUsuario = new Usuario();
         newUsuario.setNome(usuario.getNome());
         newUsuario.setEmail(usuario.getEmail());
@@ -29,7 +29,7 @@ public class UsuarioService {
         return repository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
     }
 
-    public Usuario atualizarUsuario(Long id, UsuarioDTO usuario){
+    public Usuario atualizarUsuario(Long id, UsuarioRequestDTO usuario){
         Usuario buscarUsuario = repository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
         if (usuario.getNome() != null) {
             buscarUsuario.setNome(usuario.getNome());

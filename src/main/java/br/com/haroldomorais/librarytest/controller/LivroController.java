@@ -1,7 +1,7 @@
 package br.com.haroldomorais.librarytest.controller;
 
 import br.com.haroldomorais.librarytest.model.livro.Livro;
-import br.com.haroldomorais.librarytest.model.livro.dto.LivroDTO;
+import br.com.haroldomorais.librarytest.model.livro.dto.LivroRequestDTO;
 import br.com.haroldomorais.librarytest.service.LivroService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -11,8 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/livros")
 @RequiredArgsConstructor
@@ -21,7 +19,7 @@ public class LivroController {
     private final LivroService service;
 
     @PostMapping
-    public ResponseEntity<Void> cadastrarLivro(@RequestBody LivroDTO livroDto) {
+    public ResponseEntity<Void> cadastrarLivro(@RequestBody LivroRequestDTO livroDto) {
         service.cadastrarLivro(livroDto);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -33,7 +31,7 @@ public class LivroController {
     }
 
     @PatchMapping("{id}")
-    public ResponseEntity<Livro> atualizarLivroPorId(@PathVariable Long id, @RequestBody LivroDTO livroDto){
+    public ResponseEntity<Livro> atualizarLivroPorId(@PathVariable Long id, @RequestBody LivroRequestDTO livroDto){
         Livro livroAtualizado = service.atualizarLivro(id, livroDto);
         return ResponseEntity.ok(livroAtualizado);
     }

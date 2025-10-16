@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class LivroDTO {
+public class LivroRequestDTO {
 
     @NotBlank
     private String titulo;

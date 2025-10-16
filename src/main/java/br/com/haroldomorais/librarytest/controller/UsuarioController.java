@@ -1,7 +1,7 @@
 package br.com.haroldomorais.librarytest.controller;
 
 import br.com.haroldomorais.librarytest.model.usuario.Usuario;
-import br.com.haroldomorais.librarytest.model.usuario.dto.UsuarioDTO;
+import br.com.haroldomorais.librarytest.model.usuario.dto.UsuarioRequestDTO;
 import br.com.haroldomorais.librarytest.service.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ public class UsuarioController {
     private final UsuarioService usuarioService;
 
     @PostMapping()
-    public ResponseEntity<Void> cadastrarUsuario(@RequestBody @Valid UsuarioDTO usuario){
+    public ResponseEntity<Void> cadastrarUsuario(@RequestBody @Valid UsuarioRequestDTO usuario){
         usuarioService.cadastrarUsuario(usuario);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -31,7 +31,7 @@ public class UsuarioController {
     }
 
     @PatchMapping("{id}")
-    public ResponseEntity<Usuario> atualizarUsuarioPorId(@PathVariable Long id, @RequestBody UsuarioDTO usuario) {
+    public ResponseEntity<Usuario> atualizarUsuarioPorId(@PathVariable Long id, @RequestBody UsuarioRequestDTO usuario) {
         return ResponseEntity.ok(usuarioService.atualizarUsuario(id, usuario));
     }
 

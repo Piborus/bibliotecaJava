@@ -1,8 +1,9 @@
 package br.com.haroldomorais.librarytest.service;
 
 import br.com.haroldomorais.librarytest.model.emprestimo.Emprestimo;
+import br.com.haroldomorais.librarytest.model.emprestimo.dto.EmprestimoResumoDTO;
 import br.com.haroldomorais.librarytest.model.livro.Livro;
-import br.com.haroldomorais.librarytest.model.livro.dto.LivroDTO;
+import br.com.haroldomorais.librarytest.model.livro.dto.LivroRequestDTO;
 import br.com.haroldomorais.librarytest.model.usuario.Usuario;
 import br.com.haroldomorais.librarytest.repository.EmprestimoRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,7 @@ public class EmprestimoService {
             domainService.verificarDisponibilidadeLivro(livro);
 
             livro.setQuantidade(livro.getQuantidade() - 1);
-            livroService.atualizarLivro(livro.getId(), new LivroDTO());
+            livroService.atualizarLivro(livro.getId(), new LivroRequestDTO());
 
             Emprestimo emprestimo = new Emprestimo();
             emprestimo.setDataDoEmprestimo(LocalDateTime.now());
@@ -77,26 +78,27 @@ public class EmprestimoService {
             repository.saveAll(emprestimo);
 
             livro.setQuantidade(livro.getQuantidade() + 1);
-            livroService.atualizarLivro(livro.getId(), new LivroDTO());
+            livroService.atualizarLivro(livro.getId(), new LivroRequestDTO());
         }
     }
 
-    public List<Emprestimo>buscarEmprestimosPorUsuario(Long usuarioId){
+    public List<EmprestimoResumoDTO> buscarEmprestimosPorUsuario(Long usuarioId){
         Usuario usuario = usuarioService.buscarPorId(usuarioId);
         if (usuario == null) {
             throw new RuntimeException("Usuario não encontrado");
         }
-        var busca = repository.buscarEmprestimosPorUsuario(usuarioId);
+        var busca = repository.buscarResumoEmprestimosPorUsuario(usuarioId);
         return busca;
     }
 
-    public List<Emprestimo>buscarEmprestimosEmAtrasoPorUsuario(Long usuarioId){
+    public List<EmprestimoResumoDTO> buscarEmprestimosEmAtrasoPorUsuario(Long usuarioId){
         Usuario usuario = usuarioService.buscarPorId(usuarioId);
         if (usuario == null){
             throw new RuntimeException("Usuario não encontrado");
         }
 
-        var buscar = repository.buscarEmprestimosEmAtrasoPorUsuario(usuarioId);
+        var buscar = repository.buscarResumoEmprestimosEmAtrasoPorUsuario(usuarioId);
         return buscar;
     }
 }
+

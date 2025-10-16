@@ -1,6 +1,6 @@
 package br.com.haroldomorais.librarytest.controller;
 
-import br.com.haroldomorais.librarytest.model.emprestimo.Emprestimo;
+import br.com.haroldomorais.librarytest.model.emprestimo.dto.EmprestimoResumoDTO;
 import br.com.haroldomorais.librarytest.service.EmprestimoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,14 +29,14 @@ public class EmprestimoController {
     }
 
     @GetMapping("/usuario/{usuarioId}")
-    public ResponseEntity<List<Emprestimo>> buscarEmprestimosPorUsuario(@PathVariable Long usuarioId){
-        var resultado = service.buscarEmprestimosPorUsuario(usuarioId);
+    public ResponseEntity<List<EmprestimoResumoDTO>> buscarEmprestimosPorUsuario(@PathVariable Long usuarioId){
+        List<EmprestimoResumoDTO> resultado = service.buscarEmprestimosPorUsuario(usuarioId);
         return ResponseEntity.ok(resultado);
     }
 
     @GetMapping("/usuario/{usuarioId}/em-atraso")
-    public ResponseEntity<List<Emprestimo>> buscarEmprestimosEmAtrasoPorUsuario(@PathVariable Long usuarioId){
-        var resultado = service.buscarEmprestimosEmAtrasoPorUsuario(usuarioId);
+    public ResponseEntity<List<EmprestimoResumoDTO>> buscarEmprestimosEmAtrasoPorUsuario(@PathVariable Long usuarioId){
+        List<EmprestimoResumoDTO> resultado = service.buscarEmprestimosEmAtrasoPorUsuario(usuarioId);
         return ResponseEntity.ok(resultado);
     }
 }

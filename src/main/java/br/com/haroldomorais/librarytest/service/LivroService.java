@@ -1,7 +1,7 @@
 package br.com.haroldomorais.librarytest.service;
 
 import br.com.haroldomorais.librarytest.model.livro.Livro;
-import br.com.haroldomorais.librarytest.model.livro.dto.LivroDTO;
+import br.com.haroldomorais.librarytest.model.livro.dto.LivroRequestDTO;
 import br.com.haroldomorais.librarytest.repository.LivroRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -14,7 +14,7 @@ public class LivroService {
 
     private final LivroRepository livroRepository;
 
-    public void cadastrarLivro(LivroDTO livroDto){
+    public void cadastrarLivro(LivroRequestDTO livroDto){
         Livro livro = new Livro();
         livro.setTitulo(livroDto.getTitulo());
         livro.setAutor(livroDto.getAutor());
@@ -27,7 +27,7 @@ public class LivroService {
         return livroRepository.findById(id).orElseThrow(() -> new RuntimeException("Livro não encontrado"));
     }
 
-    public Livro atualizarLivro(Long id, LivroDTO livroDto){
+    public Livro atualizarLivro(Long id, LivroRequestDTO livroDto){
         Livro livro = livroRepository.findById(id).orElseThrow(() -> new RuntimeException("Livro não encontrado"));
         if (livroDto.getTitulo() != null) {
             livro.setTitulo(livroDto.getTitulo());

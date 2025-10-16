@@ -1,8 +1,6 @@
 package br.com.haroldomorais.librarytest.model.livro;
 
-import br.com.haroldomorais.librarytest.model.livro.dto.LivroDTO;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
