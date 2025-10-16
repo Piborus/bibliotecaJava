@@ -77,11 +77,6 @@ docker compose down -v       # remove volume (zera o banco)
 
 Nota: Evite mapear `5433:5433` para o Postgres, pois o Postgres dentro do container escuta em `5432`. O correto é `HOST:5432`.
 
-Para descobrir quem usa uma porta no Windows:
-```powershell
-netstat -ano | findstr :5432
-```
-
 ---
 
 ### Executando localmente (sem Docker)
