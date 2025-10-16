@@ -1,193 +1,210 @@
-# Librarytest – API de Biblioteca (Spring Boot)
+### librarytest — API de Biblioteca (Spring Boot)
 
-API REST para gerenciamento de usuários, livros e empréstimos de uma biblioteca. O projeto utiliza Spring Boot, Spring Data JPA, validação, Flyway para migrações e PostgreSQL como banco de dados.
+API para gerenciamento de biblioteca construída com Spring Boot 4 (snapshot), Java 17, JPA/Hibernate, validação e documentação via OpenAPI/Swagger. Inclui infraestrutura Docker (Dockerfile + docker-compose) e migrações via Flyway.
 
-## Sumário
-- Visão Geral
-- Tecnologias
-- Requisitos
-- Configuração do Ambiente
-- Como Executar
-- Migrações (Flyway)
-- Endpoints
-  - Usuários
-  - Livros
-  - Empréstimos
-- Paginação e Filtros
-- Erros Comuns / Troubleshooting
-- Swagger / OpenAPI
+---
 
-## Visão Geral
-Este projeto expõe endpoints para:
-- Cadastrar, buscar, atualizar e deletar Usuários;
-- Cadastrar, buscar, atualizar, deletar e listar Livros disponíveis;
-- Realizar e devolver Empréstimos de livros por Usuário, além de consultar empréstimos e empréstimos em atraso por usuário.
+### Principais recursos
+- Cadastro e consulta de livros e usuários
+- Empréstimo e devolução de livros
+- Consulta de empréstimos por usuário e em atraso
+- Validações (Bean Validation) e tratamento global de erros (`GlobalExpetionHandler`)
+- Migrações de banco com Flyway
+- Documentação da API com Swagger UI
 
-## Tecnologias
+---
+
+### Tecnologias
 - Java 17
-- Spring Boot 4 (snapshot do starter parent)
-- Spring Web (MVC)
-- Spring Data JPA
-- Bean Validation (Jakarta Validation)
-- Flyway (migração de banco)
-- PostgreSQL (driver e dialect)
+- Spring Boot (webmvc, data-jpa, validation)
+- PostgreSQL
+- Flyway
 - Lombok
-- springdoc-openapi (Swagger UI)
-- Maven
+- springdoc-openapi
+- Docker e Docker Compose
 
-## Requisitos
-- Java 17+ instalado
-- Maven 3.8+ (opcional, você pode usar ./mvnw ou mvnw.cmd do projeto)
-- PostgreSQL em execução e acessível (por padrão em localhost:5432)
+---
 
-## Configuração do Ambiente
-1) Crie o banco de dados no PostgreSQL (por padrão o nome é `biblioteca`):
-   - Abra o psql e execute: `CREATE DATABASE biblioteca;`
+### Requisitos
+- Java 17 (ou Docker, se for rodar tudo conteinerizado)
+- Maven 3.9+ (se for build local)
+- Docker Desktop com Docker Compose v2
 
-2) Ajuste as credenciais em `src/main/resources/application.properties` se necessário:
+---
+
+### Executando com Docker (recomendado)
+
+#### 1) Build e subir os serviços
+```powershell
+# na raiz do projeto
+docker compose build
+docker compose up -d
 ```
-spring.jpa.database=POSTGRESQL
-spring.jpa.properties.hibernate.show-sql=true
-spring.jpa.show-sql=true
-spring.database.driverClassName=org.postgresql.Driver
+
+- App: http://localhost:8080
+- Swagger UI: http://localhost:8080/swagger-ui/index.html
+- Postgres (a partir do host): ver seção “Portas do Postgres”.
+
+#### 2) Logs
+```powershell
+docker compose logs -f db
+# em outro terminal
+docker compose logs -f app
+```
+
+#### 3) Parar e remover
+```powershell
+docker compose down          # mantém volume de dados
+# ou
+docker compose down -v       # remove volume (zera o banco)
+```
+
+---
+
+### Portas do Postgres (atenção)
+- Dentro da rede do Compose, a aplicação acessa o banco por `jdbc:postgresql://db:5432/biblioteca` (fixo no container: `5432`).
+- Para o host Windows, publique uma porta livre. Exemplos válidos em `docker-compose.yml`:
+  - Padrão (se a 5432 estiver livre):
+    ```yaml
+    ports:
+      - "5432:5432"
+    ```
+  - Se a 5432 do host estiver ocupada (recomendado):
+    ```yaml
+    ports:
+      - "15432:5432"
+    ```
+
+Nota: Evite mapear `5433:5433` para o Postgres, pois o Postgres dentro do container escuta em `5432`. O correto é `HOST:5432`.
+
+Para descobrir quem usa uma porta no Windows:
+```powershell
+netstat -ano | findstr :5432
+```
+
+---
+
+### Executando localmente (sem Docker)
+1) Ajuste `src\main\resources\application.properties` para apontar para seu Postgres local (padrão já é `localhost:5432`):
+```properties
 spring.datasource.url=jdbc:postgresql://localhost:5432/biblioteca
 spring.datasource.username=postgres
 spring.datasource.password=123
-server.error.include-stacktrace=never
+```
+2) Suba o Postgres localmente e crie o banco `biblioteca`.
+3) Build e run:
+```powershell
+mvn clean package -DskipTests
+java -jar target\librarytest-0.0.1-SNAPSHOT.jar
+```
+- App: http://localhost:8080
+- Swagger UI: http://localhost:8080/swagger-ui/index.html
+
+---
+
+### Variáveis de ambiente úteis (Docker)
+O serviço `app` aceita as seguintes variáveis (já definidas no `docker-compose.yml`):
+- `SPRING_DATASOURCE_URL` (ex.: `jdbc:postgresql://db:5432/biblioteca`)
+- `SPRING_DATASOURCE_USERNAME` (ex.: `postgres`)
+- `SPRING_DATASOURCE_PASSWORD` (ex.: `123`)
+- `SERVER_PORT` (ex.: `8080`)
+- `SPRING_JPA_SHOW_SQL` e `SPRING_JPA_PROPERTIES_HIBERNATE_SHOW_SQL` para logs de SQL
+
+O container da aplicação também aceita `JAVA_OPTS` (veja `Dockerfile`) para tunar a JVM:
+```bash
+JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
 ```
 
-3) As migrações do Flyway serão aplicadas automaticamente na inicialização (tabelas `usuarios`, `livros` e `emprestimos`).
+---
 
-## Como Executar
-- Usando Maven Wrapper (recomendado):
-  - Windows: `mvnw.cmd spring-boot:run`
-  - Linux/Mac: `./mvnw spring-boot:run`
+### Endpoints principais (exemplos)
+Consulte a documentação completa no Swagger UI. Exemplos relacionados a empréstimos:
 
-- Ou empacotar e executar o JAR:
-  - `mvnw.cmd clean package` (ou `./mvnw clean package`)
-  - `java -jar target/librarytest-0.0.1-SNAPSHOT.jar`
+- `POST /emprestimos` — Efetuar empréstimo
+  - Parâmetros: `livroIds` (lista de `Long`), `usuarioId` (`Long`) via `query param`.
+  - Resposta: `201 Created`
 
-Por padrão, a aplicação sobe em `http://localhost:8080`.
+- `PATCH /emprestimos` — Devolver livros
+  - Parâmetros: `livroIds` (lista), `usuarioId` via `query param`.
+  - Resposta: `200 OK`
 
-## Migrações (Flyway)
-As migrações estão em `src/main/resources/db/migration`:
-- V1__create-table-usuario.sql
-- V2__create-table-livro.sql
-- V3__create-table-emprestimos.sql
+- `GET /emprestimos/usuario/{usuarioId}` — Empréstimos do usuário
+  - Resposta: `200 OK` com `List<EmprestimoResumoDTO>`
 
-Estruturas principais:
-- usuarios(id, nome, email, matricula)
-- livros(id, titulo, autor, isbn, quantidade)
-- emprestimos(id, datas, usuario_id, livro_id)
+- `GET /emprestimos/usuario/{usuarioId}/em-atraso` — Empréstimos em atraso do usuário
+  - Resposta: `200 OK` com `List<EmprestimoResumoDTO>`
 
-## Endpoints
-Abaixo um resumo dos principais endpoints. Os códigos de status mais comuns: 200 OK, 201 Created, 204 No Content, 400 Bad Request, 404 Not Found, 409 Conflict.
+Os demais recursos (livros, usuários) também estão expostos e podem ser explorados pelo Swagger.
 
-### Usuários
-Base: `/usuarios`
+---
 
-- POST `/usuarios`
-  - Cadastra um usuário.
-  - Body (JSON):
-    {
-      "nome": "João da Silva",
-      "email": "joao@exemplo.com",
-      "matricula": "MAT-001"
-    }
-  - Respostas: 201 Created.
+### Tratamento de erros
+Erros são padronizados por `GlobalExpetionHandler`, cobrindo casos como:
+- `404 Not Found` (recurso não encontrado)
+- `400 Bad Request` (validação, parâmetros inválidos, tipos incompatíveis, JSON malformado)
+- `409 Conflict` (violação de integridade — `DataIntegrityViolationException`)
+- `500 Internal Server Error` (falhas inesperadas)
 
-- GET `/usuarios/{id}`
-  - Busca usuário por id.
-  - Resposta 200 com JSON do usuário.
+Formato de resposta: `ErroResponse { status, error, message }`.
 
-- PATCH `/usuarios/{id}`
-  - Atualiza dados do usuário.
-  - Body (JSON): campos conforme UsuarioDTO
-    {
-      "nome": "João Updated",
-      "email": "joaoupd@exemplo.com",
-      "matricula": "MAT-001"
-    }
-  - Resposta 200 com usuário atualizado.
+---
 
-- DELETE `/usuarios/{id}`
-  - Remove usuário.
-  - Resposta 204 No Content.
+### Migrações de banco (Flyway)
+- As migrações são executadas automaticamente na inicialização.
+- Certifique-se de que o banco `biblioteca` exista e que as credenciais estejam corretas.
 
-- GET `/usuarios/page`
-  - Busca paginada com filtros opcionais por `nome`, `email`, `matricula`.
-  - Exemplo: `/usuarios/page?nome=joao&page=0&size=10`
-  - Resposta 200 com Page<Usuario>.
+---
 
-### Livros
-Base: `/livros`
+### Executando via Maven (sem Docker)
+```powershell
+mvn clean package -DskipTests
+java -jar target\librarytest-0.0.1-SNAPSHOT.jar
+```
 
-- POST `/livros`
-  - Cadastra um livro.
-  - Body (JSON):
-    {
-      "titulo": "Clean Code",
-      "autor": "Robert C. Martin",
-      "isbn": "9780132350884",
-      "quantidade": 5
-    }
-  - Resposta 201 Created.
+---
 
-- GET `/livros/{id}`
-  - Busca livro por id.
-  - Resposta 200 com JSON do livro.
+### Comandos úteis (Docker)
+```powershell
+# rebuild ignorando cache
+docker compose build --no-cache
 
-- PATCH `/livros/{id}`
-  - Atualiza dados do livro.
-  - Body (JSON) conforme LivroDTO.
-  - Resposta 200 com livro atualizado.
+# reiniciar apenas o app
+docker compose restart app
 
-- DELETE `/livros/{id}`
-  - Remove livro.
-  - Resposta 204 No Content.
+# logs do app
+docker compose logs -f app
 
-- GET `/livros`
-  - Lista livros disponíveis (paginado).
-  - Parâmetros de paginação padrão: `page`, `size`, `sort`.
-  - Exemplo: `/livros?page=0&size=10`
+# conectar no banco do container (psql dentro do container)
+docker exec -it librarytest-db psql -U postgres -d biblioteca -c "\\dt"
+```
 
-### Empréstimos
-Base: `/emprestimos`
+---
 
-- POST `/emprestimos?livroIds=1,2&usuarioId=1`
-  - Realiza empréstimo de um ou mais livros para o usuário informado.
-  - Resposta 201 Created.
+### Solução de problemas
+- Porta 5432 ocupada:
+  - Altere a publicação para `15432:5432` no `docker-compose.yml` e rode `docker compose up -d --build`, ou
+  - Libere a `5432` no host (procure processo com `netstat -ano | findstr :5432`).
 
-- PATCH `/emprestimos?livroIds=1,2&usuarioId=1`
-  - Devolve um ou mais livros emprestados pelo usuário informado.
-  - Resposta 200 OK.
+- Porta 8080 ocupada:
+  - Troque para `8081:8080` no serviço `app` e rode `docker compose up -d --build`.
 
-- GET `/emprestimos/usuario/{usuarioId}`
-  - Lista os empréstimos do usuário.
-  - Resposta 200 com lista de empréstimos.
+- Aviso `the attribute version is obsolete`:
+  - O Compose v2 ignora `version:`. Remova a linha `version: "3.8"` para evitar o aviso (opcional).
 
-- GET `/emprestimos/usuario/{usuarioId}/em-atraso`
-  - Lista os empréstimos em atraso do usuário.
-  - Resposta 200 com lista de empréstimos em atraso.
+---
 
-## Paginação e Filtros
-- A paginação utiliza os parâmetros Spring padrão: `page`, `size`, `sort`.
-- Exemplos:
-  - `GET /livros?page=0&size=10&sort=titulo,asc`
-  - `GET /usuarios/page?nome=ana&size=5`
+### Estrutura (resumo)
+- `src\main\java\br\com\haroldomorais\librarytest\controller` — controladores REST (ex.: `EmprestimoController`)
+- `src\main\resources\application.properties` — configuração da aplicação
+- `Dockerfile` — build multi-stage para imagem da aplicação
+- `docker-compose.yml` — orquestração do app + Postgres
 
-## Erros Comuns / Troubleshooting
-- Conexão recusada ao banco:
-  - Verifique se o PostgreSQL está rodando e se `spring.datasource.url`, `username` e `password` estão corretos.
-  - Garanta que o banco `biblioteca` exista.
-- Falha nas migrações do Flyway:
-  - Cheque se o usuário do banco tem permissões.
-  - Verifique se não há tabelas pré-existentes conflitantes.
-- Validações de payload:
-  - `isbn`, `titulo`, `autor`, `matricula` possuem validações; revise mensagens de erro no retorno 400.
+---
 
-## Swagger / OpenAPI
-A documentação automática via Swagger UI está disponível quando a aplicação está em execução:
-- URL: `http://localhost:8080/swagger-ui/index.html`
+### Licença
+Projeto para testes/estudos. Ajuste a licença conforme necessidade.
 
-Isso permite explorar e testar os endpoints diretamente no navegador.
+---
+
+### Autor
+`br.com.haroldomorais` — Haroldo Morais
