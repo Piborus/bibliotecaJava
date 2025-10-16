@@ -1,5 +1,7 @@
 package br.com.haroldomorais.librarytest.service;
 
+import br.com.haroldomorais.librarytest.exception.ResourceNotFoundException;
+import br.com.haroldomorais.librarytest.factory.EmprestimoFactory;
 import br.com.haroldomorais.librarytest.model.emprestimo.Emprestimo;
 import br.com.haroldomorais.librarytest.model.emprestimo.dto.EmprestimoResumoDTO;
 import br.com.haroldomorais.librarytest.model.livro.Livro;
@@ -10,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -20,61 +23,61 @@ public class EmprestimoService {
     private final UsuarioService usuarioService;
     private final EmprestimoDomainService domainService;
     private final EmprestimoRepository repository;
+    private final EmprestimoFactory emprestimoFactory;
 
-    public void criaEmprestimo(List<Long> livroIds, Long usuarioId){
+    public void criaEmprestimo(List<Long> livroIds, Long usuarioId) {
         Usuario usuario = usuarioService.buscarPorId(usuarioId);
         if (usuario == null) {
-            throw new RuntimeException("Usuario não encontrado");
+            throw new ResourceNotFoundException("Usuario não encontrado");
         }
-        domainService.verificarLimiteDeEmprestimosPorUsuario(usuario);
 
+        long emprestimosAtivos = repository.contarEmprestimosAtivosPorUsuario(usuario);
+        domainService.verificarLimiteDeEmprestimosPorUsuario(emprestimosAtivos);
+
+        List<Livro> livrosParaEmprestimo = new ArrayList<>();
         for (Long livroId : livroIds) {
             Livro livro = livroService.buscarPorId(livroId);
-
             if (livro == null) {
-                throw new RuntimeException("Livro não encontrado");
+                throw new ResourceNotFoundException("Livro não encontrado");
             }
 
             domainService.verificarDisponibilidadeLivro(livro);
 
+            // Atualiza estoque
             livro.setQuantidade(livro.getQuantidade() - 1);
             livroService.atualizarLivro(livro.getId(), new LivroRequestDTO());
 
-            Emprestimo emprestimo = new Emprestimo();
-            emprestimo.setDataDoEmprestimo(LocalDateTime.now());
-            emprestimo.setDataDaDevolucao(null);
-            emprestimo.setDataPrevistaDaDevolucao(domainService.calcularDataDeEntrega());
-            emprestimo.setUsuario(usuario);
-            emprestimo.setLivro(livro);
-
-            repository.save(emprestimo);
-
+            livrosParaEmprestimo.add(livro);
         }
+
+        LocalDateTime agora = LocalDateTime.now();
+        List<Emprestimo> emprestimos = emprestimoFactory.criarTodos(usuario, livrosParaEmprestimo, agora);
+        repository.saveAll(emprestimos);
     }
 
-    public void devolverLivro(List<Long> livroIds, Long usuarioId){
+    public void devolverLivro(List<Long> livroIds, Long usuarioId) {
         Usuario usuario = usuarioService.buscarPorId(usuarioId);
         if (usuario == null) {
-            throw new RuntimeException("Usuario não encontrado");
+            throw new ResourceNotFoundException("Usuario não encontrado");
         }
 
         for (Long livroId : livroIds) {
             Livro livro = livroService.buscarPorId(livroId);
-
             if (livro == null) {
-                throw new RuntimeException("Livro não encontrado");
+                throw new ResourceNotFoundException("Livro não encontrado");
             }
 
             List<Emprestimo> emprestimo = repository.findByUsuarioAndLivroAndDataDaDevolucaoIsNull(usuario, livro)
-                    .orElseThrow(() -> new RuntimeException("Empréstimo não encontrado para o usuário e livro especificados"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Empréstimo não encontrado para o usuário e livro especificados"));
 
             if (emprestimo.isEmpty()) {
                 throw new IllegalArgumentException("O livro " + livro.getTitulo() + " não foi emprestado para o usuário.");
             }
-            for (Emprestimo emprestimo1 : emprestimo){
-                emprestimo1.setDataDaDevolucao(LocalDateTime.now());
 
+            for (Emprestimo e : emprestimo) {
+                e.setDataDaDevolucao(LocalDateTime.now());
             }
+
             repository.saveAll(emprestimo);
 
             livro.setQuantidade(livro.getQuantidade() + 1);
@@ -82,23 +85,19 @@ public class EmprestimoService {
         }
     }
 
-    public List<EmprestimoResumoDTO> buscarEmprestimosPorUsuario(Long usuarioId){
+    public List<EmprestimoResumoDTO> buscarEmprestimosPorUsuario(Long usuarioId) {
         Usuario usuario = usuarioService.buscarPorId(usuarioId);
         if (usuario == null) {
-            throw new RuntimeException("Usuario não encontrado");
+            throw new ResourceNotFoundException("Usuario não encontrado");
         }
-        var busca = repository.buscarResumoEmprestimosPorUsuario(usuarioId);
-        return busca;
+        return repository.buscarResumoEmprestimosPorUsuario(usuarioId);
     }
 
-    public List<EmprestimoResumoDTO> buscarEmprestimosEmAtrasoPorUsuario(Long usuarioId){
+    public List<EmprestimoResumoDTO> buscarEmprestimosEmAtrasoPorUsuario(Long usuarioId) {
         Usuario usuario = usuarioService.buscarPorId(usuarioId);
-        if (usuario == null){
-            throw new RuntimeException("Usuario não encontrado");
+        if (usuario == null) {
+            throw new ResourceNotFoundException("Usuario não encontrado");
         }
-
-        var buscar = repository.buscarResumoEmprestimosEmAtrasoPorUsuario(usuarioId);
-        return buscar;
+        return repository.buscarResumoEmprestimosEmAtrasoPorUsuario(usuarioId);
     }
 }
-

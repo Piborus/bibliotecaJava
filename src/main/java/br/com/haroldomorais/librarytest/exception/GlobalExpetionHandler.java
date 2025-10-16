@@ -2,6 +2,8 @@ package br.com.haroldomorais.librarytest.exception;
 
 import br.com.haroldomorais.librarytest.exception.dto.ErroResponse;
 import jakarta.validation.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
@@ -17,11 +19,32 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExpetionHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(GlobalExpetionHandler.class);
+
     @ExceptionHandler(ChangeSetPersister.NotFoundException.class)
     public ResponseEntity<ErroResponse> handleNotFound(ChangeSetPersister.NotFoundException e){
         HttpStatus status = HttpStatus.NOT_FOUND;
         String message = defaultMessage(e, "Recurso não encontrado");
         ErroResponse body = new ErroResponse(status.value(), status.getReasonPhrase(), message);
+        log.debug("NotFound: {}", message, e);
+        return new ResponseEntity<>(body, status);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErroResponse> handleResourceNotFound(ResourceNotFoundException e) {
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        String message = defaultMessage(e, "Recurso não encontrado");
+        ErroResponse body = new ErroResponse(status.value(), status.getReasonPhrase(), message);
+        log.debug("ResourceNotFound: {}", message, e);
+        return new ResponseEntity<>(body, status);
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ErroResponse> handleBusiness(BusinessException e) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        String message = defaultMessage(e, "Requisição inválida");
+        ErroResponse body = new ErroResponse(status.value(), status.getReasonPhrase(), message);
+        log.debug("BusinessException: {}", message, e);
         return new ResponseEntity<>(body, status);
     }
 
@@ -35,6 +58,7 @@ public class GlobalExpetionHandler {
         String message = detalhes.isBlank() ? "Erro de validação nos campos informados" : detalhes;
         HttpStatus status = HttpStatus.BAD_REQUEST;
         ErroResponse body = new ErroResponse(status.value(), status.getReasonPhrase(), message);
+        log.debug("Validation failed: {}", message, e);
         return new ResponseEntity<>(body, status);
     }
 
@@ -47,6 +71,7 @@ public class GlobalExpetionHandler {
         String message = detalhes.isBlank() ? "Parâmetros inválidos" : detalhes;
         HttpStatus status = HttpStatus.BAD_REQUEST;
         ErroResponse body = new ErroResponse(status.value(), status.getReasonPhrase(), message);
+        log.debug("ConstraintViolation: {}", message, e);
         return new ResponseEntity<>(body, status);
     }
 
@@ -56,6 +81,7 @@ public class GlobalExpetionHandler {
         String message = String.format("Parâmetro '%s' com tipo inválido. Esperado: %s", e.getName(), required);
         HttpStatus status = HttpStatus.BAD_REQUEST;
         ErroResponse body = new ErroResponse(status.value(), status.getReasonPhrase(), message);
+        log.debug("TypeMismatch: {}", message, e);
         return new ResponseEntity<>(body, status);
     }
 
@@ -63,15 +89,17 @@ public class GlobalExpetionHandler {
     public ResponseEntity<ErroResponse> handleNotReadable(HttpMessageNotReadableException e) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         ErroResponse body = new ErroResponse(status.value(), status.getReasonPhrase(), "Requisição mal formatada ou JSON inválido");
+        log.debug("NotReadable: {}", e.getMessage(), e);
         return new ResponseEntity<>(body, status);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErroResponse> handleConflict(DataIntegrityViolationException e) {
-        String causa = e.getMostSpecificCause() != null ? e.getMostSpecificCause().getMessage() : e.getMessage();
+        String causa = (e.getMostSpecificCause() != null) ? e.getMostSpecificCause().getMessage() : e.getMessage();
         String message = (causa != null && !causa.isBlank()) ? causa : "Violação de integridade dos dados";
         HttpStatus status = HttpStatus.CONFLICT;
         ErroResponse body = new ErroResponse(status.value(), status.getReasonPhrase(), message);
+        log.warn("DataIntegrityViolation: {}", message, e);
         return new ResponseEntity<>(body, status);
     }
 
@@ -80,15 +108,17 @@ public class GlobalExpetionHandler {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         String message = defaultMessage(e, "Requisição inválida");
         ErroResponse body = new ErroResponse(status.value(), status.getReasonPhrase(), message);
+        log.debug("IllegalArgument: {}", message, e);
         return new ResponseEntity<>(body, status);
     }
 
     // Captura RuntimeException genérica lançada nos services (ideal: substituir por exceções específicas)
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErroResponse> handleRuntime(RuntimeException e) {
-        HttpStatus status = HttpStatus.BAD_REQUEST;
-        String message = defaultMessage(e, "Operação inválida");
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        String message = defaultMessage(e, "Ocorreu um erro interno");
         ErroResponse body = new ErroResponse(status.value(), status.getReasonPhrase(), message);
+        log.error("RuntimeException: {}", message, e);
         return new ResponseEntity<>(body, status);
     }
 
@@ -96,6 +126,7 @@ public class GlobalExpetionHandler {
     public ResponseEntity<ErroResponse> handleGeneric(Exception e) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         ErroResponse body = new ErroResponse(status.value(), status.getReasonPhrase(), "Ocorreu um erro interno inesperado");
+        log.error("Exception: {}", e.getMessage(), e);
         return new ResponseEntity<>(body, status);
     }
 

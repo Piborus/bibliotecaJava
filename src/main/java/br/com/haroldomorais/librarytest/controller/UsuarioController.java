@@ -2,7 +2,9 @@ package br.com.haroldomorais.librarytest.controller;
 
 import br.com.haroldomorais.librarytest.model.usuario.Usuario;
 import br.com.haroldomorais.librarytest.model.usuario.dto.UsuarioRequestDTO;
+import br.com.haroldomorais.librarytest.model.usuario.dto.UsuarioResponseDTO;
 import br.com.haroldomorais.librarytest.service.UsuarioService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,28 +21,37 @@ public class UsuarioController {
 
     private final UsuarioService usuarioService;
 
+    @Operation(summary = "Cadastrar Usuario")
     @PostMapping()
     public ResponseEntity<Void> cadastrarUsuario(@RequestBody @Valid UsuarioRequestDTO usuario){
         usuarioService.cadastrarUsuario(usuario);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @Operation(summary = "Buscar Usuario por Id")
     @GetMapping("{id}")
-    public ResponseEntity<Usuario> buscarUsuarioPorId(@PathVariable Long id){
-        return ResponseEntity.ok(usuarioService.buscarPorId(id));
+    public ResponseEntity<UsuarioResponseDTO> buscarUsuarioPorId(@PathVariable Long id){
+        Usuario u = usuarioService.buscarPorId(id);
+        UsuarioResponseDTO dto = new UsuarioResponseDTO(u.getId(), u.getNome(), u.getEmail(), u.getMatricula());
+        return ResponseEntity.ok(dto);
     }
 
+    @Operation(summary = "Atualizar Usuario por Id")
     @PatchMapping("{id}")
-    public ResponseEntity<Usuario> atualizarUsuarioPorId(@PathVariable Long id, @RequestBody UsuarioRequestDTO usuario) {
-        return ResponseEntity.ok(usuarioService.atualizarUsuario(id, usuario));
+    public ResponseEntity<UsuarioResponseDTO> atualizarUsuarioPorId(@PathVariable Long id, @RequestBody @Valid UsuarioRequestDTO usuario) {
+        Usuario updated = usuarioService.atualizarUsuario(id, usuario);
+        UsuarioResponseDTO dto = new UsuarioResponseDTO(updated.getId(), updated.getNome(), updated.getEmail(), updated.getMatricula());
+        return ResponseEntity.ok(dto);
     }
 
+    @Operation(summary = "Deletar Usuario por Id")
     @DeleteMapping("{id}")
     public ResponseEntity<Void> deletarUsuarioPorId(@PathVariable Long id){
         usuarioService.deletarUsuario(id);
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Buscar Usuario por Nome, Email ou Matrícula com paginação")
     @GetMapping("/page")
     public ResponseEntity<Page<Usuario>> buscarUsuarioPorNomeEmailMatricula(
             @RequestParam(required = false) String nome,

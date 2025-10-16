@@ -1,21 +1,19 @@
 package br.com.haroldomorais.librarytest.model.livro.dto;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class LivroRequestDTO {
-
-    @NotBlank
+@NoArgsConstructor
+@AllArgsConstructor
+public class LivroResponseDTO {
+    private Long id;
     private String titulo;
-
-    @NotBlank
     private String autor;
-
-    @Min(0)
+    private String isbn;
     private Integer quantidade;
-
 }
+

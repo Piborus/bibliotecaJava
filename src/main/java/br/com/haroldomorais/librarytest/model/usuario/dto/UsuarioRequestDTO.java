@@ -1,7 +1,6 @@
 package br.com.haroldomorais.librarytest.model.usuario.dto;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,7 +12,4 @@ public class UsuarioRequestDTO {
 
     @Email(message = "Email deve ser no formato correto")
     private String email;
-
-    @NotBlank
-    private String matricula;
 }

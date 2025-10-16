@@ -1,5 +1,6 @@
 package br.com.haroldomorais.librarytest.service;
 
+import br.com.haroldomorais.librarytest.exception.ResourceNotFoundException;
 import br.com.haroldomorais.librarytest.model.usuario.Usuario;
 import br.com.haroldomorais.librarytest.model.usuario.dto.UsuarioRequestDTO;
 import br.com.haroldomorais.librarytest.repository.UsuarioRepository;
@@ -7,6 +8,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -20,25 +25,29 @@ public class UsuarioService {
         Usuario newUsuario = new Usuario();
         newUsuario.setNome(usuario.getNome());
         newUsuario.setEmail(usuario.getEmail());
-        newUsuario.setMatricula(usuario.getMatricula()); //cria uma algoritmo para gerar a matrícula
+        newUsuario.setMatricula(gerarMatricula());
         repository.save(newUsuario);
+    }
+
+    private String gerarMatricula() {
+        Random random = new Random();
+        String ano = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy"));
+        int numero = 100000 + random.nextInt(900000); // gera número de 6 dígitos
+        return ano + numero; // ex: 2025123456
     }
 
 
     public Usuario buscarPorId(Long id){
-        return repository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        return repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
     }
 
     public Usuario atualizarUsuario(Long id, UsuarioRequestDTO usuario){
-        Usuario buscarUsuario = repository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        Usuario buscarUsuario = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
         if (usuario.getNome() != null) {
             buscarUsuario.setNome(usuario.getNome());
         }
         if (usuario.getEmail() != null) {
             buscarUsuario.setEmail(usuario.getEmail());
-        }
-        if (usuario.getMatricula() != null) {
-            buscarUsuario.setMatricula(usuario.getMatricula());
         }
         return repository.save(buscarUsuario);
     }

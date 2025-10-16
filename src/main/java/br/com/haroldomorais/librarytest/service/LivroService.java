@@ -1,5 +1,6 @@
 package br.com.haroldomorais.librarytest.service;
 
+import br.com.haroldomorais.librarytest.exception.ResourceNotFoundException;
 import br.com.haroldomorais.librarytest.model.livro.Livro;
 import br.com.haroldomorais.librarytest.model.livro.dto.LivroRequestDTO;
 import br.com.haroldomorais.librarytest.repository.LivroRepository;
@@ -18,25 +19,39 @@ public class LivroService {
         Livro livro = new Livro();
         livro.setTitulo(livroDto.getTitulo());
         livro.setAutor(livroDto.getAutor());
-        livro.setIsbn(livroDto.getIsbn()); // Gera um ISBN aleatório
+        livro.setIsbn(gerarIsbn());
         livro.setQuantidade(livroDto.getQuantidade());
         livroRepository.save(livro);
     }
 
+    private String gerarIsbn() {
+        StringBuilder sb = new StringBuilder("978");
+        java.util.concurrent.ThreadLocalRandom rnd = java.util.concurrent.ThreadLocalRandom.current();
+        for (int i = 0; i < 9; i++) {
+            sb.append(rnd.nextInt(10));
+        }
+        String withoutCheck = sb.toString();
+        int sum = 0;
+        for (int i = 0; i < withoutCheck.length(); i++) {
+            int d = Character.getNumericValue(withoutCheck.charAt(i));
+            sum += (i % 2 == 0) ? d : d * 3;
+        }
+        int mod = sum % 10;
+        int check = (mod == 0) ? 0 : 10 - mod;
+        return withoutCheck + check;
+    }
+
     public Livro buscarPorId(Long id){
-        return livroRepository.findById(id).orElseThrow(() -> new RuntimeException("Livro não encontrado"));
+        return livroRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Livro não encontrado"));
     }
 
     public Livro atualizarLivro(Long id, LivroRequestDTO livroDto){
-        Livro livro = livroRepository.findById(id).orElseThrow(() -> new RuntimeException("Livro não encontrado"));
+        Livro livro = livroRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Livro não encontrado"));
         if (livroDto.getTitulo() != null) {
             livro.setTitulo(livroDto.getTitulo());
         }
         if (livroDto.getAutor() != null) {
             livro.setAutor(livroDto.getAutor());
-        }
-        if (livroDto.getIsbn() != null) {
-            livro.setIsbn(livroDto.getIsbn());
         }
         if (livroDto.getQuantidade() != null) {
             livro.setQuantidade(livroDto.getQuantidade());
