@@ -2,6 +2,7 @@ package br.com.haroldomorais.librarytest.exception;
 
 import br.com.haroldomorais.librarytest.exception.dto.ErroResponse;
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -17,9 +18,10 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExpetionHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(GlobalExpetionHandler.class);
+//    private static final Logger log = LoggerFactory.getLogger(GlobalExpetionHandler.class);
 
     @ExceptionHandler(ChangeSetPersister.NotFoundException.class)
     public ResponseEntity<ErroResponse> handleNotFound(ChangeSetPersister.NotFoundException e){

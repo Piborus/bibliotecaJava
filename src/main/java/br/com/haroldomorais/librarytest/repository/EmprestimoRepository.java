@@ -1,9 +1,9 @@
 package br.com.haroldomorais.librarytest.repository;
 
 import br.com.haroldomorais.librarytest.model.emprestimo.Emprestimo;
+import br.com.haroldomorais.librarytest.model.emprestimo.dto.EmprestimoResumoDTO;
 import br.com.haroldomorais.librarytest.model.livro.Livro;
 import br.com.haroldomorais.librarytest.model.usuario.Usuario;
-import br.com.haroldomorais.librarytest.model.emprestimo.dto.EmprestimoResumoDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

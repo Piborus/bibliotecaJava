@@ -1,7 +1,5 @@
 package br.com.haroldomorais.librarytest.model.emprestimo.dto;
 
-import br.com.haroldomorais.librarytest.model.emprestimo.Emprestimo;
-import br.com.haroldomorais.librarytest.model.livro.Livro;
 import br.com.haroldomorais.librarytest.model.usuario.Usuario;
 import lombok.Getter;
 import lombok.Setter;
