@@ -1,6 +1,6 @@
 package br.com.haroldomorais.librarytest.service;
 
-import br.com.haroldomorais.librarytest.exception.ResourceNotFoundException;
+import br.com.haroldomorais.librarytest.exception.NotFoundException;
 import br.com.haroldomorais.librarytest.model.livro.Livro;
 import br.com.haroldomorais.librarytest.model.livro.dto.LivroRequestDTO;
 import br.com.haroldomorais.librarytest.repository.LivroRepository;
@@ -68,7 +68,7 @@ class LivroServiceTest {
     @DisplayName("buscarPorId deve lançar ResourceNotFoundException quando não existe")
     void buscarPorId_quandoNaoExiste_lanca() {
         when(repository.findById(3L)).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class, () -> service.buscarPorId(3L));
+        assertThrows(NotFoundException.class, () -> service.buscarPorId(3L));
     }
 
     @Test

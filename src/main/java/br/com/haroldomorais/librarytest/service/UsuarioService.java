@@ -1,6 +1,6 @@
 package br.com.haroldomorais.librarytest.service;
 
-import br.com.haroldomorais.librarytest.exception.ResourceNotFoundException;
+import br.com.haroldomorais.librarytest.exception.NotFoundException;
 import br.com.haroldomorais.librarytest.model.usuario.Usuario;
 import br.com.haroldomorais.librarytest.model.usuario.dto.UsuarioRequestDTO;
 import br.com.haroldomorais.librarytest.repository.UsuarioRepository;
@@ -30,21 +30,21 @@ public class UsuarioService {
     private String gerarMatricula() {
         Random random = new Random();
         String ano = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy"));
-        int numero = 100000 + random.nextInt(900000); // gera número de 6 dígitos
-        return ano + numero; // ex: 2025123456
+        int numero = 100000 + random.nextInt(900000);
+        return ano + numero;
     }
 
     public Usuario buscarPorId(Long id){
-        return repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+        return repository.findById(id).orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
     }
 
     public Usuario buscarPorMatricula(String matricula) {
         return repository.findByMatricula(matricula)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+                .orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
     }
 
     public Usuario atualizarUsuario(Long id, UsuarioRequestDTO usuario){
-        Usuario buscarUsuario = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+        Usuario buscarUsuario = repository.findById(id).orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
         if (usuario.getNome() != null) {
             buscarUsuario.setNome(usuario.getNome());
         }

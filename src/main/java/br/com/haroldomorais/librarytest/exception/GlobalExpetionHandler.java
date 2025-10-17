@@ -3,8 +3,6 @@ package br.com.haroldomorais.librarytest.exception;
 import br.com.haroldomorais.librarytest.exception.dto.ErroResponse;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
@@ -32,8 +30,8 @@ public class GlobalExpetionHandler {
         return new ResponseEntity<>(body, status);
     }
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErroResponse> handleResourceNotFound(ResourceNotFoundException e) {
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErroResponse> handleResourceNotFound(NotFoundException e) {
         HttpStatus status = HttpStatus.NOT_FOUND;
         String message = defaultMessage(e, "Recurso não encontrado");
         ErroResponse body = new ErroResponse(status.value(), status.getReasonPhrase(), message);

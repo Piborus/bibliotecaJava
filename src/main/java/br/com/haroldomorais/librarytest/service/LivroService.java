@@ -1,6 +1,6 @@
 package br.com.haroldomorais.librarytest.service;
 
-import br.com.haroldomorais.librarytest.exception.ResourceNotFoundException;
+import br.com.haroldomorais.librarytest.exception.NotFoundException;
 import br.com.haroldomorais.librarytest.model.livro.Livro;
 import br.com.haroldomorais.librarytest.model.livro.dto.LivroRequestDTO;
 import br.com.haroldomorais.librarytest.repository.LivroRepository;
@@ -42,16 +42,16 @@ public class LivroService {
     }
 
     public Livro buscarPorId(Long id){
-        return livroRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Livro não encontrado"));
+        return livroRepository.findById(id).orElseThrow(() -> new NotFoundException("Livro não encontrado"));
     }
 
     public Livro buscarPorIsbn(String isbn) {
         return livroRepository.findByIsbn(isbn)
-                .orElseThrow(() -> new ResourceNotFoundException("Livro não encontrado"));
+                .orElseThrow(() -> new NotFoundException("Livro não encontrado"));
     }
 
     public Livro atualizarLivro(Long id, LivroRequestDTO livroDto){
-        Livro livro = livroRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Livro não encontrado"));
+        Livro livro = livroRepository.findById(id).orElseThrow(() -> new NotFoundException("Livro não encontrado"));
         if (livroDto.getTitulo() != null) {
             livro.setTitulo(livroDto.getTitulo());
         }

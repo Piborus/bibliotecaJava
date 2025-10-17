@@ -1,6 +1,6 @@
 package br.com.haroldomorais.librarytest.service;
 
-import br.com.haroldomorais.librarytest.exception.ResourceNotFoundException;
+import br.com.haroldomorais.librarytest.exception.NotFoundException;
 import br.com.haroldomorais.librarytest.factory.EmprestimoFactory;
 import br.com.haroldomorais.librarytest.model.emprestimo.Emprestimo;
 import br.com.haroldomorais.librarytest.model.emprestimo.dto.EmprestimoResumoDTO;
@@ -28,7 +28,7 @@ public class EmprestimoService {
     public void criaEmprestimo(List<Long> livroIds, Long usuarioId) {
         Usuario usuario = usuarioService.buscarPorId(usuarioId);
         if (usuario == null) {
-            throw new ResourceNotFoundException("Usuario não encontrado");
+            throw new NotFoundException("Usuario não encontrado");
         }
 
         long emprestimosAtivos = repository.contarEmprestimosAtivosPorUsuario(usuario);
@@ -38,12 +38,11 @@ public class EmprestimoService {
         for (Long livroId : livroIds) {
             Livro livro = livroService.buscarPorId(livroId);
             if (livro == null) {
-                throw new ResourceNotFoundException("Livro não encontrado");
+                throw new NotFoundException("Livro não encontrado");
             }
 
             domainService.verificarDisponibilidadeLivro(livro);
 
-            // Atualiza estoque
             livro.setQuantidade(livro.getQuantidade() - 1);
             livroService.atualizarLivro(livro.getId(), new LivroRequestDTO());
 
@@ -58,17 +57,17 @@ public class EmprestimoService {
     public void devolverLivro(List<Long> livroIds, Long usuarioId) {
         Usuario usuario = usuarioService.buscarPorId(usuarioId);
         if (usuario == null) {
-            throw new ResourceNotFoundException("Usuario não encontrado");
+            throw new NotFoundException("Usuario não encontrado");
         }
 
         for (Long livroId : livroIds) {
             Livro livro = livroService.buscarPorId(livroId);
             if (livro == null) {
-                throw new ResourceNotFoundException("Livro não encontrado");
+                throw new NotFoundException("Livro não encontrado");
             }
 
             List<Emprestimo> emprestimo = repository.findByUsuarioAndLivroAndDataDaDevolucaoIsNull(usuario, livro)
-                    .orElseThrow(() -> new ResourceNotFoundException("Empréstimo não encontrado para o usuário e livro especificados"));
+                    .orElseThrow(() -> new NotFoundException("Empréstimo não encontrado para o usuário e livro especificados"));
 
             if (emprestimo.isEmpty()) {
                 throw new IllegalArgumentException("O livro " + livro.getTitulo() + " não foi emprestado para o usuário.");
@@ -88,7 +87,7 @@ public class EmprestimoService {
     public List<EmprestimoResumoDTO> buscarEmprestimosPorUsuario(Long usuarioId) {
         Usuario usuario = usuarioService.buscarPorId(usuarioId);
         if (usuario == null) {
-            throw new ResourceNotFoundException("Usuario não encontrado");
+            throw new NotFoundException("Usuario não encontrado");
         }
         return repository.buscarResumoEmprestimosPorUsuario(usuarioId);
     }
@@ -96,7 +95,7 @@ public class EmprestimoService {
     public List<EmprestimoResumoDTO> buscarEmprestimosEmAtrasoPorUsuario(Long usuarioId) {
         Usuario usuario = usuarioService.buscarPorId(usuarioId);
         if (usuario == null) {
-            throw new ResourceNotFoundException("Usuario não encontrado");
+            throw new NotFoundException("Usuario não encontrado");
         }
         return repository.buscarResumoEmprestimosEmAtrasoPorUsuario(usuarioId);
     }
