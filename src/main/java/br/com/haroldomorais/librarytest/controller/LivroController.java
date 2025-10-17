@@ -36,6 +36,14 @@ public class LivroController {
         return ResponseEntity.ok(dto);
     }
 
+    @Operation(summary = "Buscar Livro por ISBN")
+    @GetMapping("/isbn/{isbn}")
+    public ResponseEntity<LivroResponseDTO> buscarPorIsbn(@PathVariable String isbn){
+        Livro livro = service.buscarPorIsbn(isbn);
+        LivroResponseDTO dto = new LivroResponseDTO(livro.getId(), livro.getTitulo(), livro.getAutor(), livro.getIsbn(), livro.getQuantidade());
+        return ResponseEntity.ok(dto);
+    }
+
     @Operation(summary = "Atualizar Livro por Id")
     @PatchMapping("{id}")
     public ResponseEntity<LivroResponseDTO> atualizarLivroPorId(@PathVariable Long id, @RequestBody @Valid LivroRequestDTO livroDto){

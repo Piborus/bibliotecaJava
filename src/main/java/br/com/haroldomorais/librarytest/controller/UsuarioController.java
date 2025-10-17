@@ -36,6 +36,14 @@ public class UsuarioController {
         return ResponseEntity.ok(dto);
     }
 
+    @Operation(summary = "Buscar Usuario por Matrícula")
+    @GetMapping("/matricula/{matricula}")
+    public ResponseEntity<UsuarioResponseDTO> buscarUsuarioPorMatricula(@PathVariable String matricula){
+        Usuario u = usuarioService.buscarPorMatricula(matricula);
+        UsuarioResponseDTO dto = new UsuarioResponseDTO(u.getId(), u.getNome(), u.getEmail(), u.getMatricula());
+        return ResponseEntity.ok(dto);
+    }
+
     @Operation(summary = "Atualizar Usuario por Id")
     @PatchMapping("{id}")
     public ResponseEntity<UsuarioResponseDTO> atualizarUsuarioPorId(@PathVariable Long id, @RequestBody @Valid UsuarioRequestDTO usuario) {

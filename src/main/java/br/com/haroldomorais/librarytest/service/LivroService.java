@@ -45,6 +45,11 @@ public class LivroService {
         return livroRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Livro não encontrado"));
     }
 
+    public Livro buscarPorIsbn(String isbn) {
+        return livroRepository.findByIsbn(isbn)
+                .orElseThrow(() -> new ResourceNotFoundException("Livro não encontrado"));
+    }
+
     public Livro atualizarLivro(Long id, LivroRequestDTO livroDto){
         Livro livro = livroRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Livro não encontrado"));
         if (livroDto.getTitulo() != null) {

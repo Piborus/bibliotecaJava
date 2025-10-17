@@ -17,9 +17,7 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class UsuarioService {
 
-
     private final UsuarioRepository repository;
-
 
     public void cadastrarUsuario(UsuarioRequestDTO usuario){
         Usuario newUsuario = new Usuario();
@@ -36,9 +34,13 @@ public class UsuarioService {
         return ano + numero; // ex: 2025123456
     }
 
-
     public Usuario buscarPorId(Long id){
         return repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+    }
+
+    public Usuario buscarPorMatricula(String matricula) {
+        return repository.findByMatricula(matricula)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
     }
 
     public Usuario atualizarUsuario(Long id, UsuarioRequestDTO usuario){
@@ -56,8 +58,13 @@ public class UsuarioService {
         repository.deleteById(id);
     }
 
-
     public Page<Usuario> buscarUsuarioPorNomeEmailMatricula(String nome, String email, String matricula, Pageable page){
+        boolean noParams = (nome == null || nome.isBlank())
+                && (email == null || email.isBlank())
+                && (matricula == null || matricula.isBlank());
+        if (noParams) {
+            return repository.findAll(page);
+        }
         return repository.buscarPorNomeEEmailMatricula(nome, email, matricula, page);
     }
 
